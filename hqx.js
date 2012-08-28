@@ -227,7 +227,6 @@
         _dest = dest = null;
         scaledCtx.putImageData(scaledPixels, 0, 0);
 
-        scaledCtx.fillText('hq2x', 0, 10);
         return scaled;
     };
 
