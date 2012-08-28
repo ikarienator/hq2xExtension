@@ -1,25 +1,52 @@
-var ratio = window.devicePixelRatio;
+var ratio = window.devicePixelRatio,
+    map = {};
+
 if (ratio > 1) {
-    document.addEventListener("load", function () {
-        var images = document.getElementsByTagName('img');
-        function boostImage (image) {
-            if (!image.getAttribute("__HQX_PERFORMED")) {
+
+    var images = document.getElementsByTagName('img');
+
+    function processImage (image) {
+        if (!image.getAttribute("__HQX_PERFORMED")) {
+            var src = image.src;
+            if (map[src]) {
+                if (map[src].loaded) {
+                    image.src = map[src].src;
+                } else {
+                    map[src].list.push(image);
+                }
+            } else {
+                map[src] = {list: [image]};
                 chrome.extension.sendMessage({
-                    src: image.src,
+                    src: src,
                     ratio: ratio,
                     offsetWidth: image.offsetWidth,
                     offsetHeight: image.offsetHeight
                 }, function (result) {
-                    image.style.width = image.offsetWidth + 'px';
-                    image.style.height = image.offsetHeight + 'px';
-                    image.src = result;
-                    image.setAttribute("__HQX_PERFORMED", "YES");
+                    var w = image.width;
+                    var h = image.height;
+                    map[src].loaded = true;
+                    map[src].list.forEach(function (image) {
+                        image.src = result.src;
+                        image.width = w;
+                        image.height = h;
+                    });
                 });
             }
+            image.setAttribute("__HQX_PERFORMED", "YES");
         }
+    }
 
-        for (var i = 0; i < images.length; i++) {
-            boostImage(images[i]);
+    function boostImage (image) {
+        if (image.offsetWidth) {
+            processImage(image);
+        } else {
+            image.onload = function () {
+                processImage(image);
+            };
         }
-    }, true);
+    }
+
+    for (var i = 0; i < images.length; i++) {
+        boostImage(images[i]);
+    }
 }
