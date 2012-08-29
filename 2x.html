@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<canvas width="128" height="128" id="target" style="width: 128px; height: 128px; outline: 1px solid black;"></canvas>
+</body>
+<script>
+    var can = document.getElementById('target'),
+            ctx = can.getContext('2d'),
+            rad = 15,
+            lineWidth = 4,
+            arrow = 9,
+            arrow2 = 10,
+            arrow3 = 0,
+            scale = 2.3;
+    ctx.strokeStyle = '#aaa';
+    ctx.fillStyle = '#eef';
+    ctx.lineWidth = lineWidth;
+    ctx.scale(128 / 112, 128 / 112);
+    ctx.moveTo(rad, lineWidth / 2);
+    ctx.arcTo(112 - lineWidth / 2, lineWidth / 2, 112 - lineWidth / 2, 112 - lineWidth / 2, rad);
+    ctx.arcTo(112 - lineWidth / 2, 112 - lineWidth / 2, lineWidth / 2, 112 - lineWidth / 2, rad);
+    ctx.arcTo(lineWidth / 2, 112 - lineWidth / 2, lineWidth / 2, lineWidth / 2, rad);
+    ctx.arcTo(lineWidth / 2, lineWidth / 2, 112 - lineWidth / 2, lineWidth / 2, rad);
+    ctx.fill();
+    ctx.stroke();
+    ctx.save();
+    ctx.beginPath();
+    ctx.strokeStyle = '#fff';
+    ctx.lineCap = 'butt';
+    ctx.lineWidth = 4;
+    ctx.translate(56, 56);
+    ctx.scale(scale, scale);
+
+    ctx.moveTo(-15 + arrow3, -15 + arrow);
+    ctx.lineTo(-15, -15);
+    ctx.lineTo(-15 + arrow, -15 + arrow3);
+
+    ctx.moveTo(15 - arrow3, 15 - arrow);
+    ctx.lineTo(15, 15);
+    ctx.lineTo(15 - arrow, 15 - arrow3);
+
+
+    ctx.moveTo(15 - arrow3, -15 + arrow);
+    ctx.lineTo(15, -15);
+    ctx.lineTo(15 - arrow, -15 + arrow3);
+
+    ctx.moveTo(-15 + arrow3, 15 - arrow);
+    ctx.lineTo(-15, 15);
+    ctx.lineTo(-15 + arrow, 15 - arrow3);
+
+    ctx.moveTo(-15, -15);
+    ctx.lineTo(-15 + arrow2, -15 + arrow2);
+
+    ctx.moveTo(15 - arrow2, 15 - arrow2);
+    ctx.lineTo(15, 15);
+
+    ctx.moveTo(15, -15);
+    ctx.lineTo(15 - arrow2, -15 + arrow2);
+
+    ctx.moveTo(-15 + arrow2, 15 - arrow2);
+    ctx.lineTo(-15, 15);
+
+    ctx.stroke();
+
+    ctx.strokeStyle = '#aaa';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
+
+    ctx.translate(0, 23);
+    ctx.shadowColor = 'none';
+    ctx.font = 'italic bold 40px Helvetica';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = '#999';
+    ctx.fillText('hq2x', 55, 57);
+    ctx.fillStyle = '#44d';
+    ctx.fillText('hq2x', 53, 56);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = '#333';
+    ctx.strokeText('hq2x', 53, 56);
+    ctx.translate(0, -23);
+    var url = can.toDataURL('png');
+    var img = document.createElement('img');
+    img.src = url;
+    img.width = 128;
+    img.height = 128;
+    document.body.appendChild(img);
+</script>
+</html>

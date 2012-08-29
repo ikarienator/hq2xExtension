@@ -1,6 +1,6 @@
 {
   "name": "hq2x Filter for HiDPI display",
-  "version": "1.0",
+  "version": "1.1",
   "manifest_version": 2,
   "description": "hq2x Filter for HiDPI display.",
   "permissions": [
@@ -10,8 +10,13 @@
   "background": {
     "scripts": ["hqx.js", "background.js"]
   },
-  "content_scripts": [ {
-    "matches": ["http://*/*", "https://*/*"],
-    "js": ["perform.js"]
-  } ]
+  "icons": {
+    "112": "hq2x.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*"],
+      "js": ["perform.js"]
+    }
+  ]
 }
