@@ -1,18 +1,50 @@
-function performHq2x (src, ratio, offsetWidth, offsetHeight, sendResponse) {
-    var tempImage = document.createElement('img');
-    tempImage.onload = function () {
-        if (offsetWidth == 0 || tempImage.width < offsetWidth * ratio || offsetHeight == 0 || tempImage.height < offsetHeight * ratio) {
-            var canvas = ___$$$___hqx(tempImage, ratio);
-            sendResponse({src: canvas.toDataURL(), width: offsetWidth, height: offsetHeight});
-        } else {
-            sendResponse({src: src, width: tempImage.width, height: tempImage.height});
-        }
-    };
-    tempImage.src = src;
+var map = {};
+
+function hqx (image, ratio) {
+    var canvas = ___$$$___hqx(image, ratio);
+    return canvas.toDataURL();
 }
+
+function tempImageLoaded (tempImage, src, ratio) {
+    var result = map[src].result = {src: hqx(tempImage, ratio), width: tempImage.width, height: tempImage.height};
+    map[src].loaded = true;
+    map[src].list.forEach(function (stub) {
+        if (stub.offsetWidth == 0 || tempImage.width < stub.offsetWidth * ratio || stub.offsetHeight == 0 || tempImage.height < stub.offsetHeight * ratio) {
+            try {
+                stub.sendResponse.call(null, {src: result.src, width: stub.offsetWidth || result.width, height: stub.offsetHeight || result.height});
+            } catch (e) {
+                // The tab was closed;
+            }
+        }
+    });
+    map[src].list = [];
+}
+
+function performHq2x (src, ratio, offsetWidth, offsetHeight, sendResponse) {
+    if (map[src]) {
+        if (map[src].loaded) {
+            var result = map[src].result;
+            sendResponse({src: result.src, width: offsetWidth || result.width, height: offsetHeight || result.height});
+        } else {
+            map[src].list.push({sendResponse: sendResponse, offsetWidth: offsetWidth, offsetHeight: offsetHeight});
+            return true;
+        }
+    } else {
+        map[src] = {
+            list: [
+                {sendResponse: sendResponse, offsetWidth: offsetWidth, offsetHeight: offsetHeight}
+            ]
+        };
+        var tempImage = document.createElement('img');
+        tempImage.onload = function () { tempImageLoaded(tempImage, src, ratio) };
+        tempImage.src = src;
+        return true;
+    }
+
+}
+
 chrome.extension.onMessage.addListener(
     function (request, sender, sendResponse) {
-        performHq2x(request.src, request.ratio, request.offsetWidth, request.offsetHeight, sendResponse);
-        return true;
+        return performHq2x(request.src, request.ratio, request.offsetWidth, request.offsetHeight, sendResponse);
     }
 );
