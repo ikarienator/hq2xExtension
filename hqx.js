@@ -65,17 +65,38 @@
     }
 
     function linear2 (pc, p1, v1, p2, v2) {
-        moduleDst[pc] = moduleSrc[p1] * v1 + moduleSrc[p2] * v2;
-        moduleDst[pc + 1] = moduleSrc[p1 + 1] * v1 + moduleSrc[p2 + 1] * v2;
-        moduleDst[pc + 2] = moduleSrc[p1 + 2] * v1 + moduleSrc[p2 + 2] * v2;
-        moduleDst[pc + 3] = moduleSrc[p1 + 3] * v1 + moduleSrc[p2 + 3] * v2;
+        v1 *= moduleSrc[p1 + 3];
+        v2 *= moduleSrc[p2 + 3];
+        var total = v1 + v2;
+        if (total == 0) {
+            moduleDst[pc] = moduleDst[pc + 1] = moduleDst[pc + 2] = moduleDst[pc + 3] = 0;
+        } else {
+            v1 /= total;
+            v2 /= total;
+            moduleDst[pc] = moduleSrc[p1] * v1 + moduleSrc[p2] * v2;
+            moduleDst[pc + 1] = moduleSrc[p1 + 1] * v1 + moduleSrc[p2 + 1] * v2;
+            moduleDst[pc + 2] = moduleSrc[p1 + 2] * v1 + moduleSrc[p2 + 2] * v2;
+            moduleDst[pc + 3] = total;
+        }
+        
     }
 
     function linear3 (pc, p1, v1, p2, v2, p3, v3) {
-        moduleDst[pc] = moduleSrc[p1] * v1 + moduleSrc[p2] * v2 + moduleSrc[p3] * v3;
-        moduleDst[pc + 1] = moduleSrc[p1 + 1] * v1 + moduleSrc[p2 + 1] * v2 + moduleSrc[p3 + 1] * v3;
-        moduleDst[pc + 2] = moduleSrc[p1 + 2] * v1 + moduleSrc[p2 + 2] * v2 + moduleSrc[p3 + 2] * v3;
-        moduleDst[pc + 3] = moduleSrc[p1 + 3] * v1 + moduleSrc[p2 + 3] * v2 + moduleSrc[p3 + 3] * v3;
+        v1 *= moduleSrc[p1 + 3];
+        v2 *= moduleSrc[p2 + 3];
+        v3 *= moduleSrc[p3 + 3];
+        var total = v1 + v2 + v3;
+        if (total == 0) {
+            moduleDst[pc] = moduleDst[pc + 1] = moduleDst[pc + 2] = moduleDst[pc + 3] = 0;
+        } else {
+            v1 /= total;
+            v2 /= total;
+            v3 /= total;
+            moduleDst[pc] = moduleSrc[p1] * v1 + moduleSrc[p2] * v2 + moduleSrc[p3] * v3;
+            moduleDst[pc + 1] = moduleSrc[p1 + 1] * v1 + moduleSrc[p2 + 1] * v2 + moduleSrc[p3 + 1] * v3;
+            moduleDst[pc + 2] = moduleSrc[p1 + 2] * v1 + moduleSrc[p2 + 2] * v2 + moduleSrc[p3 + 2] * v3;
+            moduleDst[pc + 3] = total;
+        }
     }
 
     /* Interpolate functions */
