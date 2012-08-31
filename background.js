@@ -1,8 +1,7 @@
 var map = {};
 
 function hqx (image, ratio) {
-    var canvas = ___$$$___hqx(image, ratio);
-    return canvas.toDataURL();
+    return ___$$$___hqx(image, ratio);
 }
 
 function tempImageLoaded (tempImage, src, ratio) {
@@ -20,7 +19,7 @@ function tempImageLoaded (tempImage, src, ratio) {
     map[src].list = [];
 }
 
-function performHq2x (src, ratio, offsetWidth, offsetHeight, sendResponse) {
+function performHq2x (src, data, ratio, offsetWidth, offsetHeight, sendResponse) {
     if (map[src]) {
         if (map[src].loaded) {
             var result = map[src].result;
@@ -37,7 +36,7 @@ function performHq2x (src, ratio, offsetWidth, offsetHeight, sendResponse) {
         };
         var tempImage = document.createElement('img');
         tempImage.onload = function () { tempImageLoaded(tempImage, src, ratio) };
-        tempImage.src = src;
+        tempImage.src = data || src;
         return true;
     }
 
@@ -45,6 +44,6 @@ function performHq2x (src, ratio, offsetWidth, offsetHeight, sendResponse) {
 
 chrome.extension.onMessage.addListener(
     function (request, sender, sendResponse) {
-        return performHq2x(request.src, request.ratio, request.offsetWidth, request.offsetHeight, sendResponse);
+        return performHq2x(request.src, request.data, request.ratio, request.offsetWidth, request.offsetHeight, sendResponse);
     }
 );

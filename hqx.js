@@ -78,7 +78,7 @@
             moduleDst[pc + 2] = moduleSrc[p1 + 2] * v1 + moduleSrc[p2 + 2] * v2;
             moduleDst[pc + 3] = total;
         }
-        
+
     }
 
     function linear3 (pc, p1, v1, p2, v2, p3, v3) {
@@ -170,7 +170,7 @@
         scaledCtx.putImageData(scaledPixels, 0, 0);
         moduleDst = null;
         moduleSrc = null;
-        return scaled;
+        return scaled.toDataURL();
     };
 
     function getPattern (p1, p2, p3, p4, p5, p6, p7, p8, p9) {

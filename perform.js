@@ -1,10 +1,38 @@
 var ratio = window.devicePixelRatio,
     map = {},
-    ruleMap = {};
+    ruleMap = {},
+    sameOriginTester = document.createElement('a'),
+    hostName = location.hostname,
+    port = location.port,
+    protocol = location.protocol,
+    pastingCanvas = document.createElement('canvas'),
+    pastingCanvasContext = pastingCanvas.getContext('2d');
+
+function sameOriginTest (url) {
+    sameOriginTester.href = url;
+    return sameOriginTester.hostname == hostName &&
+        sameOriginTester.port == port &&
+        sameOriginTester.protocol == protocol;
+}
+
+function sendRemoteMessage (request, callback) {
+    if (sameOriginTest(request.src)) {
+        var image = new Image();
+        image.addEventListener('load', function () {
+            pastingCanvas.width = image.width;
+            pastingCanvas.height = image.height;
+            pastingCanvasContext.drawImage(image, 0, 0);
+            request.data = pastingCanvas.toDataURL('image/png');
+            chrome.extension.sendMessage(request, callback);
+        }, false);
+        image.src = request.src;
+    } else {
+        chrome.extension.sendMessage(request, callback);
+    }
+}
 
 if (ratio > 1) {
     function processImage (image) {
-
         var src = image.src;
         if (map[src]) {
             if (map[src].loaded) {
@@ -14,7 +42,7 @@ if (ratio > 1) {
             }
         } else {
             map[src] = {list: [image]};
-            chrome.extension.sendMessage({
+            sendRemoteMessage({
                 src: src,
                 ratio: ratio,
                 offsetWidth: image.offsetWidth,
@@ -37,12 +65,8 @@ if (ratio > 1) {
         if (image.src && !image.__HQX_PERFORMED) {
             if (image.offsetWidth) {
                 processImage(image);
-            } else {
-                image.onload = function () {
-                    processImage(image);
-                };
+                image.__HQX_PERFORMED = "YES";
             }
-            image.__HQX_PERFORMED = "YES";
         }
     }
 
@@ -61,7 +85,7 @@ if (ratio > 1) {
                     }
                 } else {
                     ruleMap[url] = {list: [style]};
-                    chrome.extension.sendMessage({
+                    sendRemoteMessage({
                         src: url,
                         ratio: ratio,
                         offsetWidth: 0,
@@ -88,24 +112,26 @@ if (ratio > 1) {
         var styles = document.styleSheets;
         if (styles) {
             for (var i = 0; i < styles.length; i++) {
-                if (styles[i].__HQX_PERFORMED) {
-                    styles[i].__HQX_PERFORMED = "YES";
-                    try {
-                        var rules = styles[i].cssRules;
-                        if (rules) {
-                            for (var j = 0; j < rules.length; j++) {
+                if (!styles[i].ownerNode.__HQX_PERFORMED) {
+
+                    var rules = styles[i].rules;
+                    if (rules) {
+                        for (var j = 0; j < rules.length; j++) {
+                            try {
                                 updateStyle(rules[j].style);
+                            } catch (e) {
+
                             }
                         }
-                    } catch (e) {
-                        
                     }
+
+                    styles[i].ownerNode.__HQX_PERFORMED = "YES";
                 }
             }
         }
     }
 
-    document.addEventListener('DOMContentLoaded', update);
-    window.addEventListener('load', update);
+    document.addEventListener('DOMContentLoaded', update, true);
+    window.addEventListener('load', update, true);
     setInterval(update, 2000);
 }
